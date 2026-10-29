@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Runtime-switchable palette lives on distinct --palette-* variables so the
+   @theme block below can reference them without creating a same-name
+   self-reference (a custom property that refers to itself, even indirectly
+   through @theme re-declaring :root, is invalid per the CSS spec and
+   silently drops the color). */
+/* Palette rationale: calm and readable rather than decorative — a warm
+   ivory background, white cards, one muted forest green for actions and
+   active states, and a small set of soft status tones so a donation's or
+   request's state can be read at a glance. */
+:root {
+  --palette-bg: #faf8f4;
+  --palette-surface: #ffffff;
+  --palette-surface-muted: #f3f0ea;
+  --palette-border: #e9e4da;
+  --palette-border-strong: #d6cfc2;
+  --palette-text: #23261f;
+  --palette-text-muted: #6d6e64;
+  --palette-accent: #36654c;
+  --palette-accent-hover: #2d5640;
+  --palette-accent-soft: #e8efe9;
+  --palette-danger: #b4433a;
+  --palette-danger-soft: #fbeceb;
+  --palette-warning: #8a5a12;
+  --palette-warning-soft: #fbf1df;
+  --palette-info: #2f5d8a;
+  --palette-info-soft: #e8f0f8;
+  --palette-ink: #1f2a22;
+}
+
+.dark {
+  --palette-bg: #131512;
+  --palette-surface: #1b1e1a;
+  --palette-surface-muted: #232720;
+  --palette-border: #2f342d;
+  --palette-border-strong: #3f453c;
+  --palette-text: #eceee9;
+  --palette-text-muted: #a0a598;
+  --palette-accent: #6db08a;
+  --palette-accent-hover: #80c09b;
+  --palette-accent-soft: #1f2e25;
+  --palette-danger: #e08a80;
+  --palette-danger-soft: #3a2220;
+  --palette-warning: #e0b366;
+  --palette-warning-soft: #352a17;
+  --palette-info: #84b3e0;
+  --palette-info-soft: #1b2a38;
+  --palette-ink: #0d100e;
+}
+
+@theme {
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  --color-bg: var(--palette-bg);
+  --color-surface: var(--palette-surface);
+  --color-surface-muted: var(--palette-surface-muted);
+  --color-border: var(--palette-border);
+  --color-border-strong: var(--palette-border-strong);
+  --color-text: var(--palette-text);
+  --color-text-muted: var(--palette-text-muted);
+  --color-accent: var(--palette-accent);
+  --color-accent-hover: var(--palette-accent-hover);
+  --color-accent-soft: var(--palette-accent-soft);
+  --color-danger: var(--palette-danger);
+  --color-danger-soft: var(--palette-danger-soft);
+  --color-warning: var(--palette-warning);
+  --color-warning-soft: var(--palette-warning-soft);
+  --color-info: var(--palette-info);
+  --color-info-soft: var(--palette-info-soft);
+  --color-ink: var(--palette-ink);
+  --color-ink-soft: var(--palette-ink);
+}
+
+html {
+  color-scheme: light;
+  /* Slightly smaller than the 16px default: scales every rem-based size. */
+  font-size: 15px;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* Inside @layer base so Tailwind's border-color utilities can override it
+   (an unlayered rule would beat every layered utility). */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+}
+
+/* Headings: one family everywhere, made distinct by weight and tight
+   tracking instead of a decorative display face. */
+.font-display {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Form controls share one look across every page: a clear border that
+   darkens on hover and a soft accent ring on focus, so it's always obvious
+   which field is active. */
+@layer base {
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  select,
+  textarea {
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):hover,
+  select:hover,
+  textarea:hover {
+    border-color: var(--color-border-strong);
+  }
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.8;
+  }
+  label {
+    display: inline-block;
+  }
+}
+
+/* Section backgrounds. Soft, low-contrast washes rather than flat blocks,
+   built from the palette so dark mode follows automatically. */
+.bg-hero {
+  background-color: var(--palette-hero-base);
+  background-image:
+    radial-gradient(45% 65% at 90% 10%, var(--palette-hero-glow) 0%, transparent 70%),
+    radial-gradient(50% 70% at 0% 100%, var(--palette-sand) 0%, transparent 75%),
+    linear-gradient(160deg, var(--palette-hero-base) 0%, var(--palette-hero-end) 100%);
+}
+.bg-sage {
+  background-color: var(--palette-sage);
+}
+:root {
+  --palette-sand: #f2e3c9;
+  --palette-sage: #ecf2ea;
+  --palette-hero-base: #e4eee5;
+  --palette-hero-end: #f5f0e6;
+  --palette-hero-glow: #cfe2d3;
+}
+.dark {
+  --palette-sand: #2a251c;
+  --palette-sage: #172019;
+  --palette-hero-base: #16211a;
+  --palette-hero-end: #1a1c17;
+  --palette-hero-glow: #1f3527;
+}
+
+/* Gentle reveal-on-scroll, used sparingly on home page sections. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Telegram button: lifts and glows on hover, and the paper-plane icon
+   flies off to the corner and comes back in. */
+.tg-button {
+  transition: transform 0.2s ease, box-shadow 0.25s ease, background-color 0.15s ease;
+}
+.tg-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    0 10px 24px -8px color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+.tg-button:hover .tg-plane {
+  animation: tg-fly 0.9s ease-in-out;
+}
+@keyframes tg-fly {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  40% { transform: translate(14px, -12px) rotate(-12deg); opacity: 0; }
+  41% { transform: translate(-14px, 12px) rotate(0); opacity: 0; }
+  100% { transform: translate(0, 0) rotate(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tg-button:hover { transform: none; }
+  .tg-button:hover .tg-plane { animation: none; }
+}
+
+/* Small hover lift for cards and buttons. */
+.lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.15s ease;
+}
+.lift:hover {
+  transform: translateY(-3px);
+}
+
+/* Very slow up-and-down drift for the hero photo. */
+.float-soft {
+  animation: float-soft 7s ease-in-out infinite;
+}
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lift:hover { transform: none; }
+  .float-soft { animation: none; }
+}
+
+/* Step cards and the Telegram card: on hover they lift, pick up a soft
+   green glow, and their icon gives a small wiggle. */
+.glow-card {
+  box-shadow: 0 8px 24px -18px rgba(35, 38, 31, 0.35);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.glow-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--color-accent) 12%, transparent),
+    0 18px 36px -16px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+.glow-card:hover .wiggle-icon {
+  animation: wiggle 0.6s ease-in-out;
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-12deg) scale(1.12); }
+  50% { transform: rotate(10deg) scale(1.12); }
+  75% { transform: rotate(-5deg) scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-card:hover { transform: none; }
+  .glow-card:hover .wiggle-icon { animation: none; }
+}
+
+/* Hero photo: on wide screens its left edge melts into the card colour. */
+@media (min-width: 768px) {
+  .hero-photo-fade {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 22%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 22%);
+  }
+}
+
+/* Room photo in the hero: its left edge fades into the warm background. */
+@media (min-width: 768px) {
+  .hero-room-fade {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+  }
+}
+
+/* In dark mode a long fade turns the bright photo muddy against the dark
+   background — keep the blend short there. */
+@media (min-width: 768px) {
+  .dark .hero-room-fade {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 14%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 14%);
+  }
+}

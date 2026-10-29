@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750" viewBox="0 0 600 750">
+  <defs>
+    <linearGradient id="g-football-boots-1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e3e7d6"/>
+      <stop offset="1" stop-color="#c9d3b3"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="750" fill="url(#g-football-boots-1)"/>
+  <g transform="translate(300 355) scale(2.3076923076923075)" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 -58 A10 10 0 0 1 10 -48 L 48 -30 L 40 -14 L 26 -22 L 26 60 L -26 60 L -26 -22 L -40 -14 L -48 -30 L -10 -48 A10 10 0 0 1 0 -58 Z"/>
+    <path d="M-10 -48 Q0 -38 10 -48"/>
+  </g>
+  <rect x="0" y="694" width="600" height="56" fill="#1f2a44" fill-opacity="0.28"/>
+  <text x="24" y="728" font-family="Georgia, serif" font-size="26" fill="#ffffff">Futbol krossovkasi</text>
+</svg>

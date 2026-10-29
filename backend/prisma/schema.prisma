@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  admin
+
+  @@map("user_role")
+}
+
+model User {
+  id                     String   @id @default(uuid()) @db.Uuid
+  fullName               String   @map("full_name")
+  phone                  String   @unique
+  email                  String?  @unique
+  passwordHash           String   @map("password_hash")
+  role                   UserRole @default(user)
+  isBlocked              Boolean  @default(false) @map("is_blocked")
+  telegramChatId         String?  @map("telegram_chat_id")
+  telegramLinkedAt       DateTime? @map("telegram_linked_at")
+  notificationsEnabled   Boolean  @default(true) @map("notifications_enabled")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  refreshTokens          RefreshToken[]
+  donations              Donation[]        @relation("DonorDonations")
+  donationRequests       DonationRequest[] @relation("RequesterRequests")
+  notifications          Notification[]
+  telegramLinkTokens     TelegramLinkToken[]
+  favorites              FavoriteDonation[]
+  requestMessages        RequestMessage[]  @relation("MessageSender")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  tokenHash     String    @map("token_hash")
+  deviceInfo    String?   @map("device_info")
+  isRevoked     Boolean   @default(false) @map("is_revoked")
+  replacedById  String?   @map("replaced_by_id") @db.Uuid
+  expiresAt     DateTime  @map("expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Category {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String
+  slug       String     @unique
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  donations  Donation[]
+
+  @@map("categories")
+}
+
+enum DonationCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  USED
+
+  @@map("donation_condition")
+}
+
+enum DonationGender {
+  MEN
+  WOMEN
+  UNISEX
+  KIDS
+
+  @@map("donation_gender")
+}
+
+enum DonationAgeGroup {
+  ADULT
+  TEEN
+  CHILD
+  INFANT
+
+  @@map("donation_age_group")
+}
+
+enum DonationStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  AVAILABLE
+  REQUESTED
+  RESERVED
+  COLLECTED
+  COMPLETED
+  REJECTED
+  CANCELLED
+
+  @@map("donation_status")
+}
+
+model Donation {
+  id               String            @id @default(uuid()) @db.Uuid
+  donorId          String            @map("donor_id") @db.Uuid
+  title            String
+  description      String
+  categoryId       String            @map("category_id") @db.Uuid
+  size             String?
+  condition        DonationCondition
+  gender           DonationGender
+  ageGroup         DonationAgeGroup  @map("age_group")
+  quantity         Int               @default(1)
+  images           Json              @default("[]")
+  location         String?
+  status           DonationStatus    @default(PENDING_REVIEW)
+  rejectionReason  String?           @map("rejection_reason")
+  autoFlagged      Boolean           @default(false) @map("auto_flagged")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  donor            User              @relation("DonorDonations", fields: [donorId], references: [id])
+  category         Category          @relation(fields: [categoryId], references: [id])
+  requests         DonationRequest[]
+  favoritedBy      FavoriteDonation[]
+
+  @@index([categoryId])
+  @@index([donorId])
+  @@index([status])
+  @@map("donations")
+}
+
+enum DonationRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RESERVED
+  COLLECTED
+  COMPLETED
+  CANCELLED
+
+  @@map("donation_request_status")
+}
+
+model DonationRequest {
+  id            String                 @id @default(uuid()) @db.Uuid
+  donationId    String                 @map("donation_id") @db.Uuid
+  requesterId   String                 @map("requester_id") @db.Uuid
+  status        DonationRequestStatus  @default(PENDING)
+  note          String?
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+
+  donation      Donation               @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  requester     User                   @relation("RequesterRequests", fields: [requesterId], references: [id])
+  messages      RequestMessage[]
+
+  @@index([donationId])
+  @@index([requesterId])
+  @@map("donation_requests")
+}
+
+enum NotificationType {
+  DONATION_SUBMITTED
+  DONATION_APPROVED
+  DONATION_REJECTED
+  DONATION_REQUESTED
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  DONATION_COMPLETED
+  NEW_MESSAGE
+
+  @@map("notification_type")
+}
+
+model Notification {
+  id         String            @id @default(uuid()) @db.Uuid
+  userId     String            @map("user_id") @db.Uuid
+  type       NotificationType
+  title      String
+  message    String
+  isRead     Boolean           @default(false) @map("is_read")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model TelegramLinkToken {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  token       String    @unique
+  expiresAt   DateTime  @map("expires_at")
+  used        Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("telegram_link_tokens")
+}
+
+model FavoriteDonation {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  donationId  String    @map("donation_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  donation    Donation  @relation(fields: [donationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, donationId])
+  @@index([userId])
+  @@map("favorite_donations")
+}
+
+// Two-way conversation between a requester and the donor, attached to one
+// donation request.
+model RequestMessage {
+  id         String          @id @default(uuid()) @db.Uuid
+  requestId  String          @map("request_id") @db.Uuid
+  senderId   String          @map("sender_id") @db.Uuid
+  text       String
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  request    DonationRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender     User            @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+  @@map("request_messages")
+}
